@@ -1,16 +1,35 @@
 contacts = {"bara":"123",
             "ban":"345"}
 
+def input_error(func):
+    def inner(*args):
+        try:
+            result = func(*args)
+            
+        except KeyError:
+            return ("Key Error")
+        except ValueError:
+            return ("Value Error")
+        except IndexError:
+            return ("Index Error")
+        except TypeError:
+            return ("TypeError")
+        return result
+    return inner
+
 def hello():
     return "How can I help you?"
 
+@input_error
 def add(name, phone_num):
     contacts[name] = phone_num
 
+@input_error
 def change(name, phone_num):
     if name in contacts.keys():
         contacts[name] = phone_num
 
+@input_error
 def phone(name):
     return "{:^10} {:^10}".format(name, contacts[name])
 
@@ -32,21 +51,6 @@ commands = {
     "show all": show_all
 }
 
-def input_error(func):
-    def inner(*args):
-        try:
-            result = func(*args)
-            return result
-        except KeyError:
-            print("Key Error")
-        except ValueError:
-            print("Value Error")
-        except IndexError:
-            print("Index Error")
-        except TypeError:
-            print("TypeError")
-    return inner
-
 def get_handler(command):
     return commands[command]
 
@@ -62,19 +66,21 @@ def main():
     while True:
         user_input = input(">>> ")
         user_input = user_input.strip()
-        #ok
+        user_command = user_input.split(" ")
+        command = user_command[0].lower()
+        modifier = user_command[1:]
+        
         if user_input.lower() in ("good bye", "close", "exit"):
             print(good_bye())
             break
-        #not ok, calling exception by add(), change(), phone() 
-        if user_input.lower() in commands:
-            print(get_handler(user_input.lower())())
+        
+        elif user_input.lower() in commands:
+            result = get_handler(user_input.lower())()
+            if result is not None:
+                print(result)
             continue
-        #ok
-        user_input = user_input.split(" ")
-        command = user_input[0].lower()
-        modifier = user_input[1:]
-        if command in commands:
+        
+        elif command in commands:
             func = get_handler(command)
             result = handler(func, modifier)
             if result is not None:
