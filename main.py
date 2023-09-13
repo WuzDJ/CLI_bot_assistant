@@ -35,7 +35,8 @@ commands = {
 def input_error(func):
     def inner(*args):
         try:
-            func(*args)
+            result = func(*args)
+            return result
         except KeyError:
             print("Key Error")
         except ValueError:
@@ -50,7 +51,7 @@ def get_handler(command):
     return commands[command]
 
 @input_error
-def handler(func, modifier=None):
+def handler(func, modifier) -> str:
     result = func(*modifier)
     if result is None:
         func(*modifier)
@@ -61,12 +62,15 @@ def main():
     while True:
         user_input = input(">>> ")
         user_input = user_input.strip()
+        #ok
         if user_input.lower() in ("good bye", "close", "exit"):
             print(good_bye())
             break
+        #not ok, calling exception by add(), change(), phone() 
         if user_input.lower() in commands:
             print(get_handler(user_input.lower())())
             continue
+        #ok
         user_input = user_input.split(" ")
         command = user_input[0].lower()
         modifier = user_input[1:]
