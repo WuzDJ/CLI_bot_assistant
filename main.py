@@ -7,29 +7,30 @@ def input_error(func):
             result = func(*args)
             
         except KeyError:
-            return ("Key Error")
+            return ("Enter user name")
         except ValueError:
-            return ("Value Error")
+            return ("This command have no modifier")
         except IndexError:
-            return ("Index Error")
+            return ("Give me name and phone please")
         except TypeError:
-            return ("TypeError")
+            return ("Uncorrect name")
         return result
     return inner
 
 def hello():
     return "How can I help you?"
 
-@input_error
+
 def add(name, phone_num):
     contacts[name] = phone_num
 
-@input_error
+
 def change(name, phone_num):
     if name in contacts.keys():
         contacts[name] = phone_num
+    else:
+        raise TypeError
 
-@input_error
 def phone(name):
     return "{:^10} {:^10}".format(name, contacts[name])
 
@@ -48,15 +49,27 @@ commands = {
     "add": add,
     "change": change,
     "phone": phone,
-    "show all": show_all
+    "show": show_all
 }
 
 def get_handler(command):
     return commands[command]
 
 @input_error
-def handler(func, modifier) -> str:
-    result = func(*modifier)
+def handler(command, modifier) -> str:
+    if command == "hello" and len(modifier) != 0:
+        raise ValueError
+    if command == "show" and (len(modifier) != 1 or modifier[0].lower() != "all"):
+        raise ValueError
+    if command == "phone" and len(modifier) != 1:
+        raise KeyError
+    if command in ("add", "change") and len(modifier) != 2:
+        raise IndexError
+    func = get_handler(command)
+    if command == "show":
+        result = func()
+    else:
+        result = func(*modifier)
     if result is None:
         func(*modifier)
     return result
@@ -74,15 +87,15 @@ def main():
             print(good_bye())
             break
         
-        elif user_input.lower() in commands:
-            result = get_handler(user_input.lower())()
-            if result is not None:
-                print(result)
-            continue
+        #elif user_input.lower() in commands:
+        #    result = get_handler(user_input.lower())()
+        #    if result is not None:
+        #        print(result)
+        #    continue
         
         elif command in commands:
-            func = get_handler(command)
-            result = handler(func, modifier)
+            
+            result = handler(command, modifier)
             if result is not None:
                 print(result)
             continue
