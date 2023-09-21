@@ -1,5 +1,4 @@
-contacts = {"bara":"123",
-            "ban":"345"}
+contacts = {}
 
 def input_error(func):
     def inner(*args):
@@ -29,7 +28,7 @@ def change(name, phone_num):
     if name in contacts.keys():
         contacts[name] = phone_num
     else:
-        raise TypeError
+        raise TypeError         #"Uncorrect name"
 
 def phone(name):
     return "{:^10} {:^10}".format(name, contacts[name])
@@ -57,19 +56,22 @@ def get_handler(command):
 
 @input_error
 def handler(command, modifier) -> str:
+
     if command == "hello" and len(modifier) != 0:
-        raise ValueError
+        raise ValueError            #"This command have no modifier"
     if command == "show" and (len(modifier) != 1 or modifier[0].lower() != "all"):
-        raise ValueError
+        raise ValueError            #"This command have no modifier"
     if command == "phone" and len(modifier) != 1:
-        raise KeyError
+        raise KeyError              #"Enter user name"
     if command in ("add", "change") and len(modifier) != 2:
-        raise IndexError
+        raise IndexError            #"Give me name and phone please"
+    
     func = get_handler(command)
     if command == "show":
         result = func()
     else:
         result = func(*modifier)
+
     if result is None:
         func(*modifier)
     return result
@@ -87,14 +89,7 @@ def main():
             print(good_bye())
             break
         
-        #elif user_input.lower() in commands:
-        #    result = get_handler(user_input.lower())()
-        #    if result is not None:
-        #        print(result)
-        #    continue
-        
         elif command in commands:
-            
             result = handler(command, modifier)
             if result is not None:
                 print(result)
